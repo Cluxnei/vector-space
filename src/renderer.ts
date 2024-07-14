@@ -16,6 +16,7 @@ export interface IDrawArrowOptions {
     y: number;
   };
   head_length: number;
+  color: string;
 }
 
 export interface IRenderer {
@@ -50,6 +51,7 @@ export class CanvasRenderer implements IRenderer {
 
     // Draw the line
     this.ctx.beginPath();
+    this.ctx.strokeStyle = options.color;
     this.ctx.moveTo(options.from.x, options.from.y);
     this.ctx.lineTo(options.to.x, options.to.y);
 

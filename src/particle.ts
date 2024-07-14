@@ -164,6 +164,7 @@ export class Particle {
         y: to.y,
       },
       head_length: 10,
+      color: "red",
     });
   }
 

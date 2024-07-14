@@ -35,15 +35,15 @@ export class Simulation {
 
   public static factory(options: ISimulationFactoryOptions): Simulation {
     const particleSettings: IParticleFactoryOptions = {
-      density_range: [1, 100],
-      radius_range: [10, 30],
-      velocity_range: { x: [-50, -50], y: [50, 50] },
+      density_range: [1, 1],
+      radius_range: [3, 3],
+      velocity_range: { x: [0, 0], y: [0, 0] },
       position_range: { x: options.bound_range.x, y: options.bound_range.y },
     };
     const centerParticle = Particle.factory({
       ...particleSettings,
-      density_range: [100, 1000],
-      radius_range: [10, 10],
+      density_range: [5000, 5000],
+      radius_range: [80, 80],
       position_range: {
         x: [options.bound_range.x[1] / 2, options.bound_range.x[1] / 2],
         y: [options.bound_range.y[1] / 2, options.bound_range.y[1] / 2],

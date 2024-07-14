@@ -20,7 +20,7 @@ function main() {
   }
   const delta = 0.008;
   const simulation = Simulation.factory({
-    particle_count: 10,
+    particle_count: 1000,
     bound_range,
   });
   const renderer = new CanvasRenderer(ctx, canvas.width, canvas.height);
