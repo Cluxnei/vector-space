@@ -8,7 +8,10 @@ export interface ISimulationFactoryOptions {
 }
 
 export class Simulation {
-  constructor(public readonly particles: Particle[]) {
+  constructor(
+    public readonly particles: Particle[],
+    public readonly bounds: IVectorRange,
+  ) {
     this.setRef();
   }
 
@@ -34,7 +37,7 @@ export class Simulation {
     const particleSettings: IParticleFactoryOptions = {
       density_range: [1, 100],
       radius_range: [10, 30],
-      velocity_range: { x: [0, 0], y: [0, 0] },
+      velocity_range: { x: [-50, -50], y: [50, 50] },
       position_range: { x: options.bound_range.x, y: options.bound_range.y },
     };
     const centerParticle = Particle.factory({
@@ -50,6 +53,6 @@ export class Simulation {
       .fill(0)
       .map(() => Particle.factory(particleSettings));
     particles.push(centerParticle);
-    return new Simulation(particles);
+    return new Simulation(particles, options.bound_range);
   }
 }

@@ -18,9 +18,9 @@ function main() {
   if (!ctx) {
     return;
   }
-  const delta = 0.016;
+  const delta = 0.008;
   const simulation = Simulation.factory({
-    particle_count: 1000,
+    particle_count: 10,
     bound_range,
   });
   const renderer = new CanvasRenderer(ctx, canvas.width, canvas.height);

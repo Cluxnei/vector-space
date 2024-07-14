@@ -15,6 +15,17 @@ export interface IParticleFactoryOptions {
   density_range: INumberRange;
 }
 
+export interface IOverFlow {
+  leftTop: boolean;
+  leftBottom: boolean;
+  rightTop: boolean;
+  rightBottom: boolean;
+  bottomLeft: boolean;
+  bottomRight: boolean;
+  topLeft: boolean;
+  topRight: boolean;
+}
+
 export class Particle {
   private simulationRef?: Simulation;
   private readonly mass: number;
@@ -41,8 +52,69 @@ export class Particle {
   public update(delta: number): void {
     this.updateForces();
     this.acceleration = this.forces.copy().scale(1 / this.mass);
-    // this.velocity.add(this.acceleration.copy().scale(delta));
-    // this.position.add(this.velocity.copy().scale(delta));
+    this.velocity.add(this.acceleration.copy().scale(delta));
+    const nextPosition = this.position
+      .copy()
+      .add(this.velocity.copy().scale(delta));
+    const overFlow = this.getOverflow(nextPosition);
+    const computeExtraForce = Object.values(overFlow).some((v) => v);
+    if (!computeExtraForce) {
+      this.position = nextPosition;
+    } else {
+      this.velocity = this.getOverFlowVelocity(overFlow);
+      this.position.add(this.velocity.copy().scale(delta));
+    }
+  }
+
+  private getOverFlowVelocity(overFlow: IOverFlow): Vector2 {
+    const factor = 0.1;
+    if (overFlow.rightTop || overFlow.topRight) {
+      return new Vector2(-this.velocity.x * factor, -this.velocity.y * factor);
+    }
+    if (overFlow.rightBottom || overFlow.leftTop || overFlow.leftBottom) {
+      return new Vector2(-this.velocity.x * factor, this.velocity.y * factor);
+    }
+    if (overFlow.topLeft || overFlow.bottomRight || overFlow.bottomLeft) {
+      return new Vector2(this.velocity.x * factor, -this.velocity.y * factor);
+    }
+    return new Vector2();
+  }
+
+  private getOverflow(vector: Vector2): IOverFlow {
+    const corners: IOverFlow = {
+      leftTop: false,
+      leftBottom: false,
+      rightTop: false,
+      rightBottom: false,
+      bottomLeft: false,
+      bottomRight: false,
+      topLeft: false,
+      topRight: false,
+    };
+    if (!this.simulationRef) {
+      return Object.keys(corners).reduce(
+        (acc, key) => ({ ...acc, [key]: true }),
+        {} as IOverFlow,
+      );
+    }
+    const { x: boundX, y: boundY } = this.simulationRef.bounds;
+    if (vector.x < boundX[0] + this.radius) {
+      corners.leftTop = vector.y + this.radius < boundY[1] / 2;
+      corners.leftBottom = !corners.leftTop;
+    }
+    if (vector.x > boundX[1] - this.radius) {
+      corners.rightTop = vector.y - this.radius < boundY[1] / 2;
+      corners.rightBottom = !corners.rightTop;
+    }
+    if (vector.y < boundY[0] + this.radius) {
+      corners.topLeft = vector.x + this.radius < boundX[1] / 2;
+      corners.topRight = !corners.topLeft;
+    }
+    if (vector.y > boundY[1] - this.radius) {
+      corners.bottomLeft = vector.x - this.radius < boundX[1] / 2;
+      corners.bottomRight = !corners.bottomLeft;
+    }
+    return corners;
   }
 
   private updateForces(): void {
